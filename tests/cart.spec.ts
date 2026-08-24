@@ -1,95 +1,106 @@
 import { test, expect } from '@playwright/test';
+import { LoginPage } from '../pages/LoginPage';
+import { CartPage } from '../pages/CartPage';
 
 test.describe('Shopping Cart Tests', () => {
 
     test.beforeEach(async ({ page }) => {
-        await page.goto('https://www.saucedemo.com/');
+        const loginPage = new LoginPage(page);
 
-        await page.locator('#user-name').fill('standard_user');
-        await page.locator('#password').fill('secret_sauce');
-        await page.locator('#login-button').click();
+        await loginPage.goto();
+        await loginPage.login('standard_user', 'secret_sauce');
 
         await expect(page).toHaveURL(/inventory/);
     });
 
 
     test('TC-CART-001 - product can be added to the cart', async ({ page }) => {
-        await page.locator('[data-test="add-to-cart-sauce-labs-backpack"]').click();
+        const cartPage = new CartPage(page);
 
-        await expect(page.locator('.shopping_cart_badge')).toHaveText('1');
+        await cartPage.addBackpackToCart();
 
-        await page.locator('.shopping_cart_link').click();
+        await expect(await cartPage.getCartBadge()).toHaveText('1');
 
-        await expect(page.locator('.inventory_item_name'))
+        await cartPage.openCart();
+
+        await expect(await cartPage.getCartProductName())
             .toContainText('Sauce Labs Backpack');
     });
 
 
     test('TC-CART-002 - multiple products can be added to the cart', async ({ page }) => {
-        await page.locator('[data-test="add-to-cart-sauce-labs-backpack"]').click();
-        await page.locator('[data-test="add-to-cart-sauce-labs-bike-light"]').click();
+        const cartPage = new CartPage(page);
 
-        await expect(page.locator('.shopping_cart_badge')).toHaveText('2');
+        await cartPage.addBackpackToCart();
+        await cartPage.addBikeLightToCart();
 
-        await page.locator('.shopping_cart_link').click();
+        await expect(await cartPage.getCartBadge()).toHaveText('2');
 
-        await expect(page.locator('.cart_item')).toHaveCount(2);
+        await cartPage.openCart();
+
+        await expect(await cartPage.getCartItems()).toHaveCount(2);
     });
 
 
     test('TC-CART-003 - product can be removed from the cart', async ({ page }) => {
-        await page.locator('[data-test="add-to-cart-sauce-labs-backpack"]').click();
+        const cartPage = new CartPage(page);
 
-        await page.locator('.shopping_cart_link').click();
+        await cartPage.addBackpackToCart();
+        await cartPage.openCart();
+        await cartPage.removeBackpackFromCart();
 
-        await page.locator('[data-test="remove-sauce-labs-backpack"]').click();
-
-        await expect(page.locator('.cart_item')).toHaveCount(0);
+        await expect(await cartPage.getCartItems()).toHaveCount(0);
     });
 
 
     test('TC-CART-004 - cart badge updates after adding a product', async ({ page }) => {
-        await page.locator('[data-test="add-to-cart-sauce-labs-backpack"]').click();
+        const cartPage = new CartPage(page);
 
-        await expect(page.locator('.shopping_cart_badge')).toHaveText('1');
+        await cartPage.addBackpackToCart();
+
+        await expect(await cartPage.getCartBadge()).toHaveText('1');
     });
 
 
     test('TC-CART-005 - cart badge updates after removing a product', async ({ page }) => {
-        await page.locator('[data-test="add-to-cart-sauce-labs-backpack"]').click();
+        const cartPage = new CartPage(page);
 
-        await expect(page.locator('.shopping_cart_badge')).toHaveText('1');
+        await cartPage.addBackpackToCart();
 
-        await page.locator('[data-test="remove-sauce-labs-backpack"]').click();
+        await expect(await cartPage.getCartBadge()).toHaveText('1');
 
-        await expect(page.locator('.shopping_cart_badge')).toHaveCount(0);
+        await cartPage.removeBackpackFromCart();
+
+        await expect(await cartPage.getCartBadge()).toHaveCount(0);
     });
 
 
     test('TC-CART-006 - selected product details are correct in the cart', async ({ page }) => {
+        const cartPage = new CartPage(page);
+
         const productName =
             await page.locator('.inventory_item_name').first().textContent();
 
         const productPrice =
             await page.locator('.inventory_item_price').first().textContent();
 
-        await page.locator('[data-test="add-to-cart-sauce-labs-backpack"]').click();
-        await page.locator('.shopping_cart_link').click();
+        await cartPage.addBackpackToCart();
+        await cartPage.openCart();
 
-        await expect(page.locator('.inventory_item_name'))
+        await expect(await cartPage.getCartProductName())
             .toHaveText(productName!);
 
-        await expect(page.locator('.inventory_item_price'))
+        await expect(await cartPage.getCartProductPrice())
             .toHaveText(productPrice!);
     });
 
 
     test('TC-CART-007 - user can continue shopping from the cart', async ({ page }) => {
-        await page.locator('[data-test="add-to-cart-sauce-labs-backpack"]').click();
+        const cartPage = new CartPage(page);
 
-        await page.locator('.shopping_cart_link').click();
-
-        await page.locator('[data-test="continue-shopping"]').click();
+        await cartPage.addBackpackToCart();
+        await cartPage.openCart();
+        await cartPage.continueShopping();
 
         await expect(page).toHaveURL(/inventory/);
         await expect(page.locator('.title')).toHaveText('Products');
