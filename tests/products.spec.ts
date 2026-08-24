@@ -1,27 +1,32 @@
 import { test, expect } from '@playwright/test';
+import { LoginPage } from '../pages/LoginPage';
+import { ProductsPage } from '../pages/ProductsPage';
 
 test.describe('Product Catalogue Tests', () => {
 
     test.beforeEach(async ({ page }) => {
-        await page.goto('https://www.saucedemo.com/');
+        const loginPage = new LoginPage(page);
 
-        await page.locator('#user-name').fill('standard_user');
-        await page.locator('#password').fill('secret_sauce');
-        await page.locator('#login-button').click();
+        await loginPage.goto();
+        await loginPage.login('standard_user', 'secret_sauce');
 
         await expect(page).toHaveURL(/inventory/);
     });
 
 
     test('TC-PROD-001 - products are displayed after login', async ({ page }) => {
-        const products = page.locator('.inventory_item');
+        const productsPage = new ProductsPage(page);
+
+        const products = await productsPage.getProducts();
 
         await expect(products).toHaveCount(6);
     });
 
 
     test('TC-PROD-002 - product names are displayed', async ({ page }) => {
-        const productNames = page.locator('.inventory_item_name');
+        const productsPage = new ProductsPage(page);
+
+        const productNames = await productsPage.getProductNames();
 
         await expect(productNames).toHaveCount(6);
 
@@ -32,7 +37,9 @@ test.describe('Product Catalogue Tests', () => {
 
 
     test('TC-PROD-003 - product prices are displayed', async ({ page }) => {
-        const prices = page.locator('.inventory_item_price');
+        const productsPage = new ProductsPage(page);
+
+        const prices = await productsPage.getProductPrices();
 
         await expect(prices).toHaveCount(6);
 
@@ -43,7 +50,9 @@ test.describe('Product Catalogue Tests', () => {
 
 
     test('TC-PROD-004 - product images are displayed', async ({ page }) => {
-        const images = page.locator('.inventory_item_img img');
+        const productsPage = new ProductsPage(page);
+
+        const images = await productsPage.getProductImages();
 
         await expect(images).toHaveCount(6);
 
@@ -54,7 +63,9 @@ test.describe('Product Catalogue Tests', () => {
 
 
     test('TC-PROD-005 - product details page can be opened', async ({ page }) => {
-        await page.locator('.inventory_item_name').first().click();
+        const productsPage = new ProductsPage(page);
+
+        await productsPage.openFirstProduct();
 
         await expect(page).toHaveURL(/inventory-item/);
         await expect(page.locator('.inventory_details_name')).toBeVisible();
@@ -63,52 +74,66 @@ test.describe('Product Catalogue Tests', () => {
 
 
     test('TC-PROD-006 - products can be sorted by Name A to Z', async ({ page }) => {
-        await page.locator('[data-test="product-sort-container"]').selectOption('az');
+        const productsPage = new ProductsPage(page);
 
-        const names = await page.locator('.inventory_item_name').allTextContents();
+        await productsPage.sortBy('az');
 
-        const sortedNames = [...names].sort((a, b) => a.localeCompare(b));
+        const names =
+            await (await productsPage.getProductNames()).allTextContents();
+
+        const sortedNames =
+            [...names].sort((a, b) => a.localeCompare(b));
 
         expect(names).toEqual(sortedNames);
     });
 
 
     test('TC-PROD-007 - products can be sorted by Name Z to A', async ({ page }) => {
-        await page.locator('[data-test="product-sort-container"]').selectOption('za');
+        const productsPage = new ProductsPage(page);
 
-        const names = await page.locator('.inventory_item_name').allTextContents();
+        await productsPage.sortBy('za');
 
-        const sortedNames = [...names].sort((a, b) => b.localeCompare(a));
+        const names =
+            await (await productsPage.getProductNames()).allTextContents();
+
+        const sortedNames =
+            [...names].sort((a, b) => b.localeCompare(a));
 
         expect(names).toEqual(sortedNames);
     });
 
 
     test('TC-PROD-008 - products can be sorted by Price low to high', async ({ page }) => {
-        await page.locator('[data-test="product-sort-container"]').selectOption('lohi');
+        const productsPage = new ProductsPage(page);
 
-        const priceTexts = await page.locator('.inventory_item_price').allTextContents();
+        await productsPage.sortBy('lohi');
 
-        const prices = priceTexts.map(price =>
-            parseFloat(price.replace('$', ''))
-        );
+        const priceTexts =
+            await (await productsPage.getProductPrices()).allTextContents();
 
-        const sortedPrices = [...prices].sort((a, b) => a - b);
+        const prices =
+            priceTexts.map(price => parseFloat(price.replace('$', '')));
+
+        const sortedPrices =
+            [...prices].sort((a, b) => a - b);
 
         expect(prices).toEqual(sortedPrices);
     });
 
 
     test('TC-PROD-009 - products can be sorted by Price high to low', async ({ page }) => {
-        await page.locator('[data-test="product-sort-container"]').selectOption('hilo');
+        const productsPage = new ProductsPage(page);
 
-        const priceTexts = await page.locator('.inventory_item_price').allTextContents();
+        await productsPage.sortBy('hilo');
 
-        const prices = priceTexts.map(price =>
-            parseFloat(price.replace('$', ''))
-        );
+        const priceTexts =
+            await (await productsPage.getProductPrices()).allTextContents();
 
-        const sortedPrices = [...prices].sort((a, b) => b - a);
+        const prices =
+            priceTexts.map(price => parseFloat(price.replace('$', '')));
+
+        const sortedPrices =
+            [...prices].sort((a, b) => b - a);
 
         expect(prices).toEqual(sortedPrices);
     });
