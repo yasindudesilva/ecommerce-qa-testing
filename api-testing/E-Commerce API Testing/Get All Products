@@ -1,5 +1,5 @@
 $kind: http-request
-name: E-Commerce API Testing
+name: Get All Products
 description: ""
 url: https://dummyjson.com/products
 method: GET
