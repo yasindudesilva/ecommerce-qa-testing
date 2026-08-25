@@ -1,0 +1,34 @@
+$kind: http-request
+name: Delete Product
+description: ""
+url: https://dummyjson.com/products/1
+method: DELETE
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Status code is 200\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Product is marked as deleted\", function () {\r
+
+      \    const response = pm.response.json();\r
+
+      \    pm.expect(response.isDeleted).to.eql(true);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Deleted product ID is 1\", function () {\r
+
+      \    const response = pm.response.json();\r
+
+      \    pm.expect(response.id).to.eql(1);\r
+
+      });"
+    language: text/javascript
+order: 1787645535914

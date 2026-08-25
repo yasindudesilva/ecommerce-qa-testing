@@ -1,0 +1,36 @@
+$kind: http-request
+name: Search Products
+description: ""
+url: https://dummyjson.com/products/search?q=phone
+method: GET
+queryParams:
+  q: phone
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Status code is 200\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Products array is returned\", function () {\r
+
+      \    const response = pm.response.json();\r
+
+      \    pm.expect(response.products).to.be.an(\"array\");\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Search returns at least one product\", function () {\r
+
+      \    const response = pm.response.json();\r
+
+      \    pm.expect(response.products.length).to.be.above(0);\r
+
+      });"
+    language: text/javascript
+order: 1787640967609

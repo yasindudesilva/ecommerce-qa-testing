@@ -1,0 +1,43 @@
+$kind: http-request
+name: Add Product
+description: ""
+url: https://dummyjson.com/products/add
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"title\": \"QA Test Product\",\r
+
+    \  \"price\": 99.99\r
+
+    }"
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Status code is successful\", function () {\r
+
+      \    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Product title is correct\", function () {\r
+
+      \    const response = pm.response.json();\r
+
+      \    pm.expect(response.title).to.eql(\"QA Test Product\");\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Product price is correct\", function () {\r
+
+      \    const response = pm.response.json();\r
+
+      \    pm.expect(response.price).to.eql(99.99);\r
+
+      });"
+    language: text/javascript
+order: 1787645141632

@@ -1,0 +1,36 @@
+$kind: http-request
+name: Get Product By ID
+description: ""
+url: https://dummyjson.com/products/1
+method: GET
+scripts:
+  - type: afterResponse
+    code: "pm.test(\"Status code is 200\", function () {\r
+
+      \    pm.response.to.have.status(200);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Product ID is 1\", function () {\r
+
+      \    const response = pm.response.json();\r
+
+      \    pm.expect(response.id).to.eql(1);\r
+
+      });\r
+
+      \r
+
+      pm.test(\"Product has a title\", function () {\r
+
+      \    const response = pm.response.json();\r
+
+      \    pm.expect(response.title).to.be.a(\"string\");\r
+
+      \    pm.expect(response.title.length).to.be.above(0);\r
+
+      });"
+    language: text/javascript
+order: 2348810466825428
