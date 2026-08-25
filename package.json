@@ -1,0 +1,27 @@
+{
+  "name": "ecommerce-qa-testing",
+  "version": "1.0.0",
+  "description": "End-to-end QA engineering project covering manual testing, Playwright automation, API testing, SQL validation, and CI/CD for an e-commerce application.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yasindudesilva/ecommerce-qa-testing.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/yasindudesilva/ecommerce-qa-testing/issues"
+  },
+  "homepage": "https://github.com/yasindudesilva/ecommerce-qa-testing#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.62.1",
+    "@types/node": "^26.2.0"
+  }
+}
